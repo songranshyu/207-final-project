@@ -1,0 +1,126 @@
+@startuml itemize-class-diagram
+' Clean Architecture class diagram for one use case (Itemize transaction)
+' To change: edit this file, paste it into https://www.plantuml.com/plantuml, and replace the PNG.
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam linetype ortho
+skinparam nodesep 60
+skinparam ranksep 45
+hide empty members
+hide circle
+
+title Itemize Transaction use case: Clean Architecture class diagram
+
+package "Frameworks & Drivers" {
+  class ItemizeView <<view>> {
+    +actionPerformed(evt)
+    +propertyChange(evt)
+  }
+  class JsonTransactionRepository <<data access>> {
+    +get(id: String): Transaction
+    +save(t: Transaction)
+  }
+}
+
+package "Interface Adapters" {
+  class ItemizeController <<controller>> {
+    -interactor: ItemizeInputBoundary
+    +execute(id, names, prices)
+  }
+  class ItemizeViewModel <<view model>> {
+    -state: ItemizeState
+    +firePropertyChanged()
+  }
+  class ItemizePresenter <<presenter>> {
+    -viewModel: ItemizeViewModel
+    +prepareSuccessView(out: ItemizeOutputData)
+    +prepareFailView(error: String)
+  }
+}
+
+package "Use Cases (core module)                                                            " {
+  interface ItemizeInputBoundary <<interface>> {
+    +execute(in: ItemizeInputData)
+  }
+  interface ItemizeOutputBoundary <<interface>> {
+    +prepareSuccessView(out: ItemizeOutputData)
+    +prepareFailView(error: String)
+  }
+  class ItemizeInteractor <<interactor>> {
+    -dataAccess: ItemizeDataAccessInterface
+    -presenter: ItemizeOutputBoundary
+    +execute(in: ItemizeInputData)
+  }
+  interface ItemizeDataAccessInterface <<interface>> {
+    +get(id: String): Transaction
+    +save(t: Transaction)
+  }
+  class ItemizeInputData {
+    -transactionId: String
+    -names: List<String>
+    -prices: List<Long>
+  }
+  class ItemizeOutputData {
+    -transactionId: String
+    -itemizedTotal: Money
+    -remaining: Money
+  }
+}
+
+package "Entities (core module)" {
+  class Transaction <<entity>> {
+    -id: String
+    -total: Money
+    -items: List<LineItem>
+    +addLineItem(item: LineItem)
+    +remainingAmount(): Money
+  }
+  class LineItem <<entity>> {
+    -name: String
+    -price: Money
+  }
+  class Money <<entity>> {
+    -cents: long
+    +plus(other: Money): Money
+  }
+}
+
+' Frameworks & Drivers -> Interface Adapters
+ItemizeView --> ItemizeController : calls
+ItemizeView --> ItemizeViewModel : observes
+ItemizeViewModel <-- ItemizePresenter : updates
+
+' Interface Adapters -> Use Cases
+ItemizeController --> ItemizeInputBoundary : calls
+ItemizePresenter ..|> ItemizeOutputBoundary
+
+' Inside Use Cases
+ItemizeInputBoundary <|.. ItemizeInteractor
+ItemizeOutputBoundary <-- ItemizeInteractor
+ItemizeInteractor -left-> ItemizeDataAccessInterface
+ItemizeInputData <.. ItemizeInteractor : reads
+ItemizeInteractor ..> ItemizeOutputData : creates
+
+' Data access implements the use case's interface
+JsonTransactionRepository ..|> ItemizeDataAccessInterface
+
+' Use Cases -> Entities
+ItemizeInteractor ..> Transaction : creates and changes
+
+' Inside Entities
+Transaction *-right- "0..*" LineItem
+Transaction -left-> Money
+LineItem ..> Money
+ItemizeOutputData -[hidden]down- Transaction
+
+legend bottom
+  Solid arrow: holds a reference to / calls
+  Dashed arrow with hollow triangle: implements
+  Dashed arrow: depends on
+  Filled diamond: contains
+endlegend
+@enduml

@@ -1,0 +1,21 @@
+# Build output
+target/
+
+# IntelliJ
+.idea/
+*.iml
+out/
+
+# macOS / Windows
+.DS_Store
+Thumbs.db
+
+# Secrets: never commit Plaid keys
+.env
+*.env
+
+# Local app data (the real data file lives in your home folder, but just in case)
+data.json
+
+# AI Assistent
+CLAUDE.md

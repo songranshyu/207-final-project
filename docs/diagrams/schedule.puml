@@ -1,0 +1,40 @@
+@startgantt schedule
+' Schedule by member against the course milestones
+' To change: edit this file, paste it into https://www.plantuml.com/plantuml, and replace the PNG.
+skinparam defaultFontName Arial
+title Schedule by member, Nov 16 to Dec 7, 2026
+Project starts 2026-11-16
+printscale daily zoom 2
+
+-- Week 1 groundwork (others wait on these) --
+[Repo + Maven modules (Member 4)] starts 2026-11-16 and ends 2026-11-17 and is colored in #EBE0F5/#7A5A9E
+[Money + Transaction (Member 2)] starts 2026-11-16 and ends 2026-11-18 and is colored in #DFF2D8/#4F8A3C
+[Sample data + JSON loader (Member 3)] starts 2026-11-16 and ends 2026-11-18 and is colored in #FDEBD3/#C27A1E
+
+-- Member 1: Import bank transactions --
+[Plaid account, API test program, interactor v1] starts 2026-11-16 and ends 2026-11-20 and is colored in #DCEBFA/#3C6EA8
+[PlaidBankGateway, changed/removed, Sync button] starts 2026-11-21 and ends 2026-11-27 and is colored in #DCEBFA/#3C6EA8
+[100% coverage, polish, API slides] starts 2026-11-28 and ends 2026-12-04 and is colored in #DCEBFA/#3C6EA8
+
+-- Member 2: Tag and describe + main window --
+[main window skeleton, tag interactor v1] starts 2026-11-19 and ends 2026-11-20 and is colored in #DFF2D8/#4F8A3C
+[tag rules, AppBuilder wires all four] starts 2026-11-21 and ends 2026-11-27 and is colored in #DFF2D8/#4F8A3C
+[100% coverage, polish, architecture slides] starts 2026-11-28 and ends 2026-12-04 and is colored in #DFF2D8/#4F8A3C
+
+-- Member 3: Itemize + saving data --
+[saving after changes, itemize interactor v1] starts 2026-11-19 and ends 2026-11-20 and is colored in #FDEBD3/#C27A1E
+[repository for all use cases, item edits] starts 2026-11-21 and ends 2026-11-27 and is colored in #FDEBD3/#C27A1E
+[100% coverage, demo data, persistence slides] starts 2026-11-28 and ends 2026-12-04 and is colored in #FDEBD3/#C27A1E
+
+-- Member 4: Monthly report + build --
+[Checkstyle + coverage, report interactor v1] starts 2026-11-18 and ends 2026-11-20 and is colored in #EBE0F5/#7A5A9E
+[report view, counting rule, Strategy] starts 2026-11-21 and ends 2026-11-27 and is colored in #EBE0F5/#7A5A9E
+[100% coverage, chart, SOLID slides] starts 2026-11-28 and ends 2026-12-04 and is colored in #EBE0F5/#7A5A9E
+
+-- Whole team --
+[Rehearse the presentation] starts 2026-12-05 and ends 2026-12-07 and is colored in #EEEEEE/#777777
+[Milestone 2 due] happens 2026-11-20
+[Milestone 3 due (MVP)] happens 2026-11-27
+[Milestone 4 due] happens 2026-12-04
+[Final presentations (Dec 7/8)] happens 2026-12-07
+@endgantt

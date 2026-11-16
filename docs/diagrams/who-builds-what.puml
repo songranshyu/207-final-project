@@ -1,0 +1,79 @@
+@startuml who-builds-what
+' Who builds what, layer by layer (one colour per member)
+' To change: edit this file, paste it into https://www.plantuml.com/plantuml, and replace the PNG.
+!theme plain
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam rectangle {
+  RoundCorner 8
+}
+skinparam nodesep 30
+skinparam ranksep 45
+skinparam ArrowColor #555555
+
+title Who builds what, layer by layer
+
+package "Frameworks & Drivers  (app module)" {
+  rectangle "**Member 1**\nSync button and status message\nPlaidBankGateway (plaid-java)" as F1 #DCEBFA
+  rectangle "**Member 2**\nMain window + transaction list\nTag view, moving between screens\nMain + AppBuilder (wires everything)" as F2 #DFF2D8
+  rectangle "**Member 3**\nItemize view\nJsonTransactionRepository\n(saves and loads all data)\nsample-data.json" as F3 #FDEBD3
+  rectangle "**Member 4**\nReport view\n(month picker, table,\noptional bar chart)" as F4 #EBE0F5
+}
+
+package "Interface Adapters" {
+  rectangle "**sync_transactions**\ncontroller, presenter,\nview model" as A1 #DCEBFA
+  rectangle "**tag_transaction**\ncontroller, presenter,\nview model" as A2 #DFF2D8
+  rectangle "**itemize_transaction**\ncontroller, presenter,\nview model" as A3 #FDEBD3
+  rectangle "**generate_report**\ncontroller, presenter,\nview model" as A4 #EBE0F5
+}
+
+package "Use Cases  (core module)" {
+  rectangle "**sync_transactions**\nSyncTransactionsInteractor\nBankGateway interface" as U1 #DCEBFA
+  rectangle "**tag_transaction**\nTagTransactionInteractor" as U2 #DFF2D8
+  rectangle "**itemize_transaction**\nItemizeTransactionInteractor" as U3 #FDEBD3
+  rectangle "**generate_report**\nGenerateReportInteractor\nReportGrouping (Strategy)" as U4 #EBE0F5
+}
+
+package "Entities  (core module)" {
+  rectangle "**BankConnection**" as E1 #DCEBFA
+  rectangle "**Money, Transaction, Tag**\n(shared, due Wed Nov 18)" as E2 #DFF2D8
+  rectangle "**LineItem**\n+ item methods on Transaction" as E3 #FDEBD3
+  rectangle "**MonthlyReport**\n(counting rule)" as E4 #EBE0F5
+}
+
+rectangle "**Member 4: repo and build**\nGitHub PR rules, Maven core + app modules,\nCheckstyle, JaCoCo coverage report, README\n(due Tue Nov 17)" as B4 #EBE0F5
+
+F1 -down-> A1
+A1 -down-> U1
+U1 -down-> E1
+F2 -down-> A2
+A2 -down-> U2
+U2 -down-> E2
+F3 -down-> A3
+A3 -down-> U3
+U3 -down-> E3
+F4 -down-> A4
+A4 -down-> U4
+U4 -down-> E4
+E4 -[hidden]down-> B4
+F1 -[hidden]right- F2
+F2 -[hidden]right- F3
+F3 -[hidden]right- F4
+E1 -[hidden]right- E2
+E2 -[hidden]right- E3
+E3 -[hidden]right- E4
+
+legend right
+  <back:#DCEBFA> Member 1 </back> Import bank transactions (hard)
+  <back:#DFF2D8> Member 2 </back> Tag and describe + shared groundwork (easier)
+  <back:#FDEBD3> Member 3 </back> Itemize + saving data (medium)
+  <back:#EBE0F5> Member 4 </back> Monthly report + repo setup (medium-hard)
+  ----
+  Arrows: depends on (always toward the core)
+  Interface Adapters live in the app module.
+  Each use case package also holds its input/output data,
+  boundaries, data access interface and tests.
+endlegend
+@enduml
