@@ -272,12 +272,13 @@ All data is saved to one JSON file, `~/.bookkeeping/data.json` (TODO: confirm th
 **You need:** Java 17 or newer, Maven, and the team's Plaid Sandbox keys (ask Member 1; never commit them).
 
 1. Clone the repo and open it in IntelliJ as a Maven project.
-2. Set your Plaid keys as environment variables:
+2. Add your Plaid keys. The easiest way is a local keys file:
    ```bash
-   export PLAID_CLIENT_ID=your-client-id
-   export PLAID_SECRET=your-sandbox-secret
+   cp plaid.properties.example plaid.properties
    ```
-   On Windows, set them under System Properties → Environment Variables, or in IntelliJ's run configuration.
+   Then open `plaid.properties` and fill in `PLAID_CLIENT_ID` and `PLAID_SECRET`. Git ignores this file, so your keys are never committed. Keep it in the project folder, **not** in `src/main/resources/` (anything there is packaged into the app).
+
+   You can use environment variables with the same names instead (in IntelliJ's run configuration or your shell). If both are set, the environment variable wins.
 3. Build and run all checks:
    ```bash
    mvn verify
@@ -322,7 +323,7 @@ Each use case package in `use_case` holds: input data, output data, input bounda
 - **Ownership:** each member writes the code for their own use case; ask before changing someone else's.
 - **Style:** fix new Checkstyle warnings before asking for a review.
 - **Tests:** at least one test per interactor by Nov 27, and 100% line coverage of entities and use cases by Dec 4. Tests use an in-memory repository and a fake presenter: no files, network or Swing.
-- **Secrets:** Plaid keys only in environment variables, never in code or commits.
+- **Secrets:** Plaid keys only in your own `plaid.properties` (ignored by git) or environment variables, never in code, commits or `plaid.properties.example`.
 - **Diagrams:** to change a diagram, edit its `.puml` file in `docs/diagrams/`, paste it into [plantuml.com/plantuml](https://www.plantuml.com/plantuml), and replace the `.png`.
 
 ---
@@ -356,4 +357,5 @@ Each use case package in `use_case` holds: input data, output data, input bounda
 | Nov 16 | Limits | Descriptions up to 200 characters |
 | Nov 16 | Build | Maven, Java 17+ |
 | Nov 19 | Project layout | One Maven module laid out like the course's `ca-login` example (`entity`, `use_case`, `interface_adapter`, `view`, `data_access`, `app`), replacing the `core` and `app` modules |
+| Nov 19 | Plaid keys | Read from environment variables `PLAID_CLIENT_ID` / `PLAID_SECRET`, or else from a local `plaid.properties` in the project folder (ignored by git; template: `plaid.properties.example`) |
 | TODO | JSON library | Gson or Jackson |
