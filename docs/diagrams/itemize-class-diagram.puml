@@ -42,7 +42,7 @@ package "Interface Adapters" {
   }
 }
 
-package "Use Cases (core module)                                                            " {
+package "Use Cases                                                                          " {
   interface ItemizeInputBoundary <<interface>> {
     +execute(in: ItemizeInputData)
   }
@@ -71,7 +71,7 @@ package "Use Cases (core module)                        
   }
 }
 
-package "Entities (core module)" {
+package "Entities" {
   class Transaction <<entity>> {
     -id: String
     -total: Money

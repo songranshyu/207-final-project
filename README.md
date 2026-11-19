@@ -177,7 +177,7 @@ Each use case is written from the user's point of view. Each one says what the p
 
 ## Entities
 
-All entities live in the `core` module and are plain Java.
+All entities live in the `entity` package and are plain Java.
 
 | Entity | What it holds | Rule it enforces | Owner |
 | --- | --- | --- | --- |
@@ -194,12 +194,20 @@ All entities live in the `core` module and are plain Java.
 
 We follow **Clean Architecture**. Source-code dependencies only point inward: Frameworks & Drivers → Interface Adapters → Use Cases → Entities.
 
-- **`core` module:** entities and use cases. Plain Java with no Swing, JSON, file or Plaid imports. Because `core` has no such dependencies in its `pom.xml`, the compiler blocks any Dependency Rule violation.
-- **`app` module:** everything that touches the outside world: Swing views, controllers, presenters, view models, the JSON file repository and the Plaid gateway.
+The code is one Maven project, laid out like the course's `ca-login` example. Each layer is a set of top-level packages:
+
+| Layer | Packages | What's in them |
+| --- | --- | --- |
+| Entities | `entity` | `Money`, `Transaction`, `Tag`, `LineItem`, `MonthlyReport`, `BankConnection` |
+| Use Cases | `use_case` | One sub-package per use case: input and output data, boundaries, data access interface, interactor |
+| Interface Adapters | `interface_adapter` | One sub-package per use case: controller, presenter, view model, state |
+| Frameworks & Drivers | `view`, `data_access`, `app` | Swing views, the JSON file repository, the Plaid gateway, and `Main` + `AppBuilder` |
+
+`entity` and `use_case` are plain Java: no Swing, JSON, file or Plaid imports, and no imports from the outer packages. Reviewers check this on every pull request.
 
 ### Who builds what
 
-Each colour is one member. Every arrow points toward the core.
+Each colour is one member. Every arrow points inward, toward the entities.
 
 ![Who builds what, layer by layer](docs/diagrams/who-builds-what.png)
 
@@ -274,8 +282,8 @@ All data is saved to one JSON file, `~/.bookkeeping/data.json` (TODO: confirm th
    ```bash
    mvn verify
    ```
-   This runs the tests, Checkstyle and the JaCoCo coverage report. The coverage report is written to `core/target/site/jacoco/index.html`.
-4. Run the app: open `app/src/main/java/main/Main.java` and run `Main`.
+   This runs the tests, Checkstyle and the JaCoCo coverage report. The coverage report (entities and use cases only) is written to `target/site/jacoco/index.html`.
+4. Run the app: open `src/main/java/app/Main.java` and run `Main`.
 
 ---
 
@@ -283,29 +291,27 @@ All data is saved to one JSON file, `~/.bookkeeping/data.json` (TODO: confirm th
 
 ```
 .
-├── pom.xml                      # parent build: modules, Checkstyle, JaCoCo
-├── core/                        # plain Java: no Swing, JSON, file or Plaid imports
-│   └── src/
-│       ├── main/java/
-│       │   ├── entity/          # Money, Transaction, Tag, LineItem, MonthlyReport, BankConnection
-│       │   └── use_case/
-│       │       ├── sync_transactions/     # Member 1
-│       │       ├── tag_transaction/       # Member 2
-│       │       ├── itemize_transaction/   # Member 3
-│       │       └── generate_report/       # Member 4
-│       └── test/java/use_case/  # one test class per interactor
-├── app/
-│   └── src/main/
-│       ├── java/
-│       │   ├── interface_adapter/<use case>/  # controller, presenter, view model, state
-│       │   ├── view/                          # Swing views and the main window
-│       │   ├── data_access/                   # JsonTransactionRepository, PlaidBankGateway
-│       │   └── main/                          # Main and AppBuilder (wires everything)
-│       └── resources/sample-data.json
-└── docs/diagrams/               # PlantUML sources (.puml) and images (.png)
+├── pom.xml                                # build: dependencies, Checkstyle, JaCoCo
+├── checkstyle.xml                         # team style rules
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   ├── entity/                    # Entities: Money, Transaction, Tag, LineItem, ...
+│   │   │   ├── use_case/                  # Use Cases (plain Java, like entity/)
+│   │   │   │   ├── sync_transactions/     # Member 1
+│   │   │   │   ├── tag_transaction/       # Member 2
+│   │   │   │   ├── itemize_transaction/   # Member 3
+│   │   │   │   └── generate_report/       # Member 4
+│   │   │   ├── interface_adapter/<use case>/  # Interface Adapters: controller, presenter, view model, state
+│   │   │   ├── view/                      # Frameworks & Drivers: Swing views and the main window
+│   │   │   ├── data_access/               # Frameworks & Drivers: JsonTransactionRepository, PlaidBankGateway
+│   │   │   └── app/                       # Frameworks & Drivers: Main and AppBuilder (wires everything)
+│   │   └── resources/sample-data.json
+│   └── test/java/use_case/<use case>/     # one test class per interactor
+└── docs/diagrams/                         # PlantUML sources (.puml) and images (.png)
 ```
 
-Each use case package in `core` holds: input data, output data, input boundary, output boundary, data access interface and interactor.
+Each use case package in `use_case` holds: input data, output data, input boundary, output boundary, data access interface and interactor.
 
 ---
 
@@ -325,7 +331,7 @@ Each use case package in `core` holds: input data, output data, input boundary, 
 
 | Date | Milestone |
 | --- | --- |
-| Tue Nov 17 | Repo, modules and this README in place (Member 4) |
+| Tue Nov 17 | Repo, Maven build and this README in place (Member 4) |
 | Wed Nov 18 | `Money` and `Transaction` merged (Member 2); sample data and loader (Member 3) |
 | Fri Nov 20 | **Milestone 2:** one PR and one review each; runnable code for each use case; Plaid calls work |
 | Fri Nov 27 | **Milestone 3:** all four use cases in one app (MVP); at least one test per interactor |
@@ -348,5 +354,6 @@ Each use case package in `core` holds: input data, output data, input boundary, 
 | Nov 16 | Changes from Plaid | Changed: update amount, date and store, keep the user's tags, description and items. Removed: delete |
 | Nov 16 | Currency | CAD; each amount stores its currency, nothing is converted |
 | Nov 16 | Limits | Descriptions up to 200 characters |
-| Nov 16 | Build | Maven, Java, `core` and `app` modules |
+| Nov 16 | Build | Maven, Java 17+ |
+| Nov 19 | Project layout | One Maven module laid out like the course's `ca-login` example (`entity`, `use_case`, `interface_adapter`, `view`, `data_access`, `app`), replacing the `core` and `app` modules |
 | TODO | JSON library | Gson or Jackson |

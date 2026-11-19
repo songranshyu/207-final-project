@@ -4,19 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Parent build for the whole project. Run Maven from this folder. -->
+    <!--
+      One Maven module, laid out like the course's ca-login example. The Clean Architecture
+      layers are packages under src/main/java:
+        entity/             Entities
+        use_case/           Use Cases
+        interface_adapter/  Interface Adapters
+        view/, data_access/, app/   Frameworks & Drivers
+      entity and use_case must not import Swing, JSON, files, HTTP or Plaid (see README, Architecture).
+    -->
     <groupId>ca.utoronto.csc207</groupId>
     <artifactId>csc207-bookkeeper</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
     <name>CSC207 Bookkeeper</name>
-
-    <modules>
-        <!-- core: entities and use cases, plain Java (no Swing, JSON, files or Plaid) -->
-        <module>core</module>
-        <!-- app: Swing views, interface adapters, data access, Plaid, Main -->
-        <module>app</module>
-    </modules>
 
     <properties>
         <!-- Compile for Java 17 so every teammate with JDK 17 or newer can build. -->
@@ -25,50 +25,75 @@
 
         <junit.version>5.11.4</junit.version>
         <plaid.version>42.0.0</plaid.version>
-
-        <!-- Checkstyle config at the project root. -->
-        <checkstyle.config.location>${maven.multiModuleProjectDirectory}/checkstyle.xml</checkstyle.config.location>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter</artifactId>
-                <version>${junit.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.plaid</groupId>
-                <artifactId>plaid-java</artifactId>
-                <version>${plaid.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    <dependencies>
+        <!-- Plaid API client (Member 1). Keys come from PLAID_CLIENT_ID and PLAID_SECRET. -->
+        <dependency>
+            <groupId>com.plaid</groupId>
+            <artifactId>plaid-java</artifactId>
+            <version>${plaid.version}</version>
+        </dependency>
+
+        <!--
+          JSON library for JsonTransactionRepository (Member 3): the team still has to pick one.
+          Gson:    com.google.code.gson:gson
+          Jackson: com.fasterxml.jackson.core:jackson-databind
+        -->
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.13.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.2</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.15</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
         <plugins>
-            <!-- Checkstyle runs in every module during "mvn verify". It reports warnings but never fails the build. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+            </plugin>
+
+            <!--
+              Test coverage. The report covers only the entity and use_case packages, the layers the
+              course requires at 100% line coverage. Report: target/site/jacoco/index.html
+            -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.15</version>
+                <configuration>
+                    <includes>
+                        <include>entity/**</include>
+                        <include>use_case/**</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Checkstyle runs during "mvn verify". It reports warnings but never fails the build. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -81,7 +106,7 @@
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <configLocation>${checkstyle.config.location}</configLocation>
+                    <configLocation>${project.basedir}/checkstyle.xml</configLocation>
                     <consoleOutput>true</consoleOutput>
                     <failOnViolation>false</failOnViolation>
                     <violationSeverity>warning</violationSeverity>

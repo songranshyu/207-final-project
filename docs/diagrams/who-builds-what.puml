@@ -15,35 +15,35 @@ skinparam ArrowColor #555555
 
 title Who builds what, layer by layer
 
-package "Frameworks & Drivers  (app module)" {
+package "Frameworks & Drivers  (view, data_access, app)" {
   rectangle "**Member 1**\nSync button and status message\nPlaidBankGateway (plaid-java)" as F1 #DCEBFA
   rectangle "**Member 2**\nMain window + transaction list\nTag view, moving between screens\nMain + AppBuilder (wires everything)" as F2 #DFF2D8
   rectangle "**Member 3**\nItemize view\nJsonTransactionRepository\n(saves and loads all data)\nsample-data.json" as F3 #FDEBD3
   rectangle "**Member 4**\nReport view\n(month picker, table,\noptional bar chart)" as F4 #EBE0F5
 }
 
-package "Interface Adapters" {
+package "Interface Adapters  (interface_adapter)" {
   rectangle "**sync_transactions**\ncontroller, presenter,\nview model" as A1 #DCEBFA
   rectangle "**tag_transaction**\ncontroller, presenter,\nview model" as A2 #DFF2D8
   rectangle "**itemize_transaction**\ncontroller, presenter,\nview model" as A3 #FDEBD3
   rectangle "**generate_report**\ncontroller, presenter,\nview model" as A4 #EBE0F5
 }
 
-package "Use Cases  (core module)" {
+package "Use Cases  (use_case)" {
   rectangle "**sync_transactions**\nSyncTransactionsInteractor\nBankGateway interface" as U1 #DCEBFA
   rectangle "**tag_transaction**\nTagTransactionInteractor" as U2 #DFF2D8
   rectangle "**itemize_transaction**\nItemizeTransactionInteractor" as U3 #FDEBD3
   rectangle "**generate_report**\nGenerateReportInteractor\nReportGrouping (Strategy)" as U4 #EBE0F5
 }
 
-package "Entities  (core module)" {
+package "Entities  (entity)" {
   rectangle "**BankConnection**" as E1 #DCEBFA
   rectangle "**Money, Transaction, Tag**\n(shared, due Wed Nov 18)" as E2 #DFF2D8
   rectangle "**LineItem**\n+ item methods on Transaction" as E3 #FDEBD3
   rectangle "**MonthlyReport**\n(counting rule)" as E4 #EBE0F5
 }
 
-rectangle "**Member 4: repo and build**\nGitHub PR rules, Maven core + app modules,\nCheckstyle, JaCoCo coverage report, README\n(due Tue Nov 17)" as B4 #EBE0F5
+rectangle "**Member 4: repo and build**\nGitHub PR rules, Maven build,\nCheckstyle, JaCoCo coverage report, README\n(due Tue Nov 17)" as B4 #EBE0F5
 
 F1 -down-> A1
 A1 -down-> U1
@@ -71,8 +71,8 @@ legend right
   <back:#FDEBD3> Member 3 </back> Itemize + saving data (medium)
   <back:#EBE0F5> Member 4 </back> Monthly report + repo setup (medium-hard)
   ----
-  Arrows: depends on (always toward the core)
-  Interface Adapters live in the app module.
+  Arrows: depends on (always inward, toward the entities)
+  Each layer is a set of packages in one Maven project.
   Each use case package also holds its input/output data,
   boundaries, data access interface and tests.
 endlegend
