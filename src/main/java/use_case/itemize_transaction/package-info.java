@@ -3,3 +3,5 @@
  * ItemizeTransaction input/output data, boundaries, data access interface and interactor.
  */
 package use_case.itemize_transaction;
+
+import entity.LineItem;
