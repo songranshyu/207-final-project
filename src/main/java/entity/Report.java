@@ -47,4 +47,8 @@ public final class Report {
     public long getTotalForTag(String tag) {
         return totalsByTag.getOrDefault(tag, 0L);
     }
+
+    public Map<String, Long> getTotalsByTag() {
+        return Map.copyOf(totalsByTag);
+    }
 }

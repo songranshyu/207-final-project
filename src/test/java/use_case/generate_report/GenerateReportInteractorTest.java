@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import java.util.Map;
+import use_case.generate_report.grouping.ReportGrouping;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -21,7 +23,8 @@ class GenerateReportInteractorTest {
         };
 
         GenerateReportOutputBoundary presenter = report -> { };
-        ReportGroupingStub grouping = new ReportGroupingStub();
+        ReportGrouping grouping = (period, transactions) ->
+                new GenerateReportOutputData(period, Map.of(), 0L, 0L);
         GenerateReportInteractor interactor =
                 new GenerateReportInteractor(repository, presenter, grouping, grouping);
 
