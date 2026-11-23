@@ -13,6 +13,8 @@ Thumbs.db
 # Secrets: never commit Plaid keys
 .env
 *.env
+# Your real Plaid keys (copy plaid.properties.example to create it)
+plaid.properties
 
 # Local app data (the real data file lives in your home folder, but just in case)
 data.json

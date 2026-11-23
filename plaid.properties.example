@@ -1,0 +1,7 @@
+# Plaid Sandbox keys.
+#
+# Copy this file to "plaid.properties" in this same folder and fill in the two values.
+# Git ignores plaid.properties, so your real keys are never committed. Never put real keys in THIS file.
+# Environment variables with the same names (PLAID_CLIENT_ID, PLAID_SECRET) take priority over the file.
+PLAID_CLIENT_ID=your-client-id
+PLAID_SECRET=your-sandbox-secret
