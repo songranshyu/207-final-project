@@ -26,7 +26,7 @@ A personal bookkeeping desktop app for CSC207 (Fall 2026, University of Toronto)
 
 Our app is a personal bookkeeping tool. It imports the purchases you make with your bank cards automatically, so your spending history builds itself with very little typing.
 
-For any purchase you can go one level deeper and record what you actually bought. For example, a $120 trip to Superstore can be broken down into items such as $11 for two cartons of milk. You can add a description and several tags (such as "Groceries" or "Weekly run") to any purchase, and generate a monthly report of how much you spent under each tag.
+For any purchase you can go one level deeper and record what you actually bought. For example, a $120 trip to Superstore can be broken down into items such as $11 for two cartons of milk. You can add a description and several tags (such as "Groceries" or "Weekly run") to any purchase, and generate a daily, weekly, or monthly spending report grouped by tag or store.
 
 **Stretch goals:** record cash purchases by hand, search your history, set a monthly budget per tag, and photograph a receipt to fill in the items automatically.
 
@@ -39,7 +39,7 @@ For any purchase you can go one level deeper and record what you actually bought
 | Member 1 | TODO | TODO | Import bank transactions | Plaid account and Sandbox keys |
 | Member 2 | TODO | TODO | Tag and describe a transaction | `Money` and `Transaction` entities, main window, moving between screens, app wiring |
 | Member 3 | TODO | TODO | Itemize a transaction | Saving and loading the JSON file, sample data |
-| Member 4 | TODO | TODO | Generate monthly report | Repo and build setup, Checkstyle, test coverage report |
+| Member 4 | TODO | TODO | Generate spending report | Repo and build setup, Checkstyle, test coverage report |
 
 **Meetings:** TODO (e.g. weekly lab, plus a check-in on ___).
 **Communication:** TODO (e.g. Discord or a group chat).
@@ -55,7 +55,7 @@ Each member leads one user story. Each story becomes one use case in the program
 | 1 | As a user, I want my bank card purchases imported automatically so that I don't have to type in every transaction. | Member 1 |
 | 2 | As a user, I want to add a description and tags to a purchase so that I can group and remember my spending. | Member 2 |
 | 3 | As a user, I want to break a purchase into the items I bought so that I know what my money actually went to. | Member 3 |
-| 4 | As a user, I want a monthly report of my spending by tag so that I can see where my money goes. | Member 4 |
+| 4 | As a user, I want to see my spending by tag for a selected day, week, or month so that I can see where my money goes. | Member 4 |
 
 ---
 
@@ -86,8 +86,8 @@ Each use case is written from the user's point of view. Each one says what the p
 **Extensions:**
 
 - **3a.** The bank can't be reached.
-  1. The system explains the problem.
-  2. Nothing changes, and the next sync starts from the same point.
+    1. The system explains the problem.
+    2. Nothing changes, and the next sync starts from the same point.
 - **3b.** There is nothing new. The system says there are no new transactions.
 - **5a.** A changed transaction's items now add up to more than its new total. The system marks the transaction so the user can fix its items.
 
@@ -114,8 +114,8 @@ Each use case is written from the user's point of view. Each one says what the p
 
 - **2a.** The user adds a tag that matches an existing tag apart from capital letters or extra spaces. The system uses the existing tag.
 - **5a.** A tag is empty, or the description is longer than 200 characters.
-  1. The system explains the problem.
-  2. Nothing is saved, and the user can correct it.
+    1. The system explains the problem.
+    2. Nothing is saved, and the user can correct it.
 
 ### Use case 3: Itemize a transaction (lead: Member 3)
 
@@ -138,30 +138,30 @@ Each use case is written from the user's point of view. Each one says what the p
 
 - **1a.** The user edits or removes an existing item. The use case continues from step 2.
 - **2a.** The items add up to more than the transaction total.
-  1. The system explains the problem and by how much.
-  2. Nothing is saved, and the user can correct the items.
+    1. The system explains the problem and by how much.
+    2. Nothing is saved, and the user can correct the items.
 - **3a.** The system cannot save the items. The system says the items were not saved and that the user may try again.
 
-### Use case 4: Generate monthly report (lead: Member 4)
+### Use case 4: Generate spending report (lead: Member 4)
 
 **Primary actor:** User
 
 **Preconditions:** None.
 
-**Trigger:** The user asks for a spending report for a particular month.
+**Trigger:** The user asks for a spending report for a particular time frame.
 
-**Success outcome:** The user sees how much they spent under each tag that month, and the month's total spending.
+**Success outcome:** The user sees how much they spent under each tag during the selected period and how much they spent overall.
 
 **Main success scenario:**
 
-1. The user chooses a month.
-2. The system gathers that month's spending. Money coming in, such as refunds and deposits, is left out.
+1. The user chooses a day, week, or month to report on.
+2. The system gathers that period's spending. Money coming in, such as refunds and deposits, is left out.
 3. The system totals the spending for each tag. A purchase counts in full under every one of its tags, and an item also counts under its own tag. Within one tag, a dollar never counts twice.
-4. The system shows the total per tag, the untagged amount and the month's total spending, with a note that tag totals can add up to more than the total.
+4. The system shows the total per tag, the untagged amount and total spending for the selected period, with a note that tag totals can add up to more than the total.
 
 **Extensions:**
 
-- **2a.** There is no spending that month. The system says so.
+- **2a.** There is no spending during the selected period. The system says so.
 - **4a.** The user asks to see totals by store instead of by tag. The system shows them the same way.
 
 **Example:** a $120.00 Superstore trip tagged _Shopping_ and _Weekly run_, with an $11.00 milk item tagged _Groceries_, gives:
@@ -185,7 +185,7 @@ All entities live in the `entity` package and are plain Java.
 | `Transaction` | Id, source (bank or manual), Plaid transaction id, date, store, total, description, one or more tags, line items | A manual total must be positive; the date can't be in the future | Member 2 (line-item methods: Member 3) |
 | `Tag` | A normalized name | "Groceries" and "groceries " are the same tag | Member 2 |
 | `LineItem` | Name, quantity, price, at most one tag | All items together can't exceed the transaction total | Member 3 |
-| `MonthlyReport` | Month, total per tag, untagged amount, total spending | The counting rule in use case 4 | Member 4 |
+| `Report` | Selected period, totals by tag or store, untagged amount, total spending | The counting rule in use case 4 | Member 4 |
 | `BankConnection` | Bank name, Plaid access token, sync position (cursor) | The sync position only moves forward after a complete sync | Member 1 |
 
 ---
@@ -198,7 +198,7 @@ The code is one Maven project, laid out like the course's `ca-login` example. Ea
 
 | Layer | Packages | What's in them |
 | --- | --- | --- |
-| Entities | `entity` | `Money`, `Transaction`, `Tag`, `LineItem`, `MonthlyReport`, `BankConnection` |
+| Entities | `entity` | `Money`, `Transaction`, `Tag`, `LineItem`, `Report`, `BankConnection` |
 | Use Cases | `use_case` | One sub-package per use case: input and output data, boundaries, data access interface, interactor |
 | Interface Adapters | `interface_adapter` | One sub-package per use case: controller, presenter, view model, state |
 | Frameworks & Drivers | `view`, `data_access`, `app` | Swing views, the JSON file repository, the Plaid gateway, and `Main` + `AppBuilder` |
@@ -370,7 +370,7 @@ Each use case package in `use_case` holds: input data, output data, input bounda
 | --- | --- | --- |
 | Nov 16 | Architecture | Local desktop app (Swing + JSON file + Plaid Sandbox); no server |
 | Nov 16 | Tags | A transaction can have several tags; a line item has at most one |
-| Nov 16 | Monthly report | A purchase counts in full under every one of its tags, and an item also under its own tag; within one tag a dollar never counts twice |
+| Nov 16 | Spending report | A purchase counts in full under every one of its tags, and an item also under its own tag; within one tag a dollar never counts twice |
 | Nov 16 | Money coming in | Refunds and deposits are stored but left out of the report |
 | Nov 16 | Bank data | Only settled transactions are imported; Plaid's category becomes a readable starting tag |
 | Nov 16 | Changes from Plaid | Changed: update amount, date and store, keep the user's tags, description and items. Removed: delete |
