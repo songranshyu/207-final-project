@@ -251,9 +251,30 @@ What we take from each transaction: id, date, amount, store name, currency, pend
 - Plaid amounts are **positive when money leaves the account**. `PlaidBankGateway` converts them in one place.
 - **Pending transactions are skipped.** We only import settled ones.
 - Plaid's category codes (e.g. `FOOD_AND_DRINK`) are mapped to readable starting tags (e.g. "Food and drink"). Any code missing from the map is auto-formatted.
-- Our Sandbox test user has transactions in **CAD**. Plaid's test data defaults to US dollars, so we use a custom Sandbox user.
+- Plaid's test data defaults to US dollars, so we will use a custom Sandbox user with transactions in **CAD** (to do).
 
-**API test output:** TODO. Paste the output of the Plaid test program here (Milestone 2).
+**API test output (Milestone 2).** Output of a small local test program (not in the repo) that calls `PlaidBankGateway` to connect Plaid's Sandbox test bank, fetch its transactions and print them. Run on Nov 23:
+
+```
+1. Connecting to Plaid's test bank...
+   Connected. Access token looks right: true
+2. Fetching transactions (Plaid may need a few seconds)...
+   Added: 17, modified: 0, removed: 0
+   First 10 added:
+   2026-11-23  Uber                              6.33 USD  TRANSPORTATION       posted
+   2026-11-10  Uber                              5.40 USD  TRANSPORTATION       posted
+   2026-11-08  United Airlines                -500.00 USD  TRAVEL               posted
+   2026-11-07  McDonald's                       12.00 USD  FOOD_AND_DRINK       posted
+   2026-11-07  Starbucks                         4.33 USD  FOOD_AND_DRINK       posted
+   2026-11-06  FUN                              89.40 USD  GENERAL_MERCHANDISE  posted
+   2026-10-24  Uber                              6.33 USD  TRANSPORTATION       posted
+   2026-11-10  CREDIT CARD 3333 PAYMENT *//     25.00 USD  LOAN_PAYMENTS        posted
+   2026-11-05  INTRST PYMNT                     -4.22 USD  TRANSFER_IN          posted
+   2026-11-09  CD DEPOSIT .INITIAL.           1000.00 USD  TRANSFER_OUT         posted
+3. Got a cursor to save for the next sync: true
+```
+
+This uses Plaid's default test user, so amounts are in USD; the custom CAD test user is still to do. Negative amounts are money coming in (a refund, interest).
 
 ---
 

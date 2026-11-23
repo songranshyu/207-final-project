@@ -87,8 +87,15 @@ public class PlaidBankGateway implements BankGateway {
         }
     }
 
+    /**
+     * Turns one of Plaid's transactions into our own {@link BankTransaction}, so nothing past this class sees Plaid.
+     *
+     * @param plaidTransaction a transaction as Plaid sends it
+     * @return the same transaction in our format: amount in cents, a store name that's never empty, and the
+     *     category code (or null if Plaid gave none)
+     */
     private static BankTransaction toBankTransaction(Transaction plaidTransaction) {
-
+        // Transfers and deposits often have no merchant name; fall back to the bank's own description.
         String storeName = plaidTransaction.getMerchantName();
         if (storeName == null || storeName.isEmpty()) {
             storeName = plaidTransaction.getName();
@@ -98,7 +105,6 @@ public class PlaidBankGateway implements BankGateway {
         if (plaidTransaction.getPersonalFinanceCategory() != null) {
             category = plaidTransaction.getPersonalFinanceCategory().getPrimary();
         }
-
 
         return new BankTransaction(
                 plaidTransaction.getTransactionId(),
